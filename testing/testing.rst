@@ -110,14 +110,14 @@ example).
 ``Testmod``: A directory containing arbitrary ``user_nl_*`` contents and
 ``xmlchange`` commands. See below for more details.
 
-=============================
- Test Categories and Options
-=============================
+========================
+ Test Types and Options
+========================
 
-.. Test Categories:
+.. Test Types:
 
-Test Categories
-===============
+Test Types
+==========
 
 The following are the most commonly used test types and their meaning:
 
@@ -557,47 +557,75 @@ or, if you expect NLCOMP and BASELINE failures::
 
   ./cs.status.20170926_093725_gq431o -f --count-performance-fails -c NLCOMP -c BASELINE
 
-Running a pre-defined test suite
-================================
+
+.. _test categories:
+
+Test Categories
+===============
 
 In addition to running your own individual tests or test suites, you can
 also use ``create_test`` to run a pre-defined test suite. Moving forwards, NorESM
 components will have a policy that a particular test suite must be run before
-changes can be merged back to the main branch. These test suites are
-defined in the following directories:
-``
-prognostic components:
-$SRCROOT/blom/cime_config/testdefs/testlist_blom.xml
-$SRCROOT/cam/cime_config/testdefs/testlist_cam.xml
-$SRCROOT/cice/cime_config/testdefs/testlist_cice.xml
-$SRCROOT/cism/cime_config/testdefs/testlist_cism.xml
-$SRCROOT/clm/cime_config/testdefs/testlist_clm.xml
-$SRCROOT/rtm/cime_config/testdefs/testlist_rtm.xml
-$SRCROOT/mosart/cime_config/testdefs/testlist_mosart.xml
-$SRCROOT/ww3dev/cime_config/testdefs/testlist_ww3dev.xml
+changes can be merged back to the main branch.
 
-data components:
-$SRCROOT/cdeps/dice/cime_config/testdefs/testlist_dice.xml
-$SRCROOT/cdeps/cime_config/testdefs/testlist_cdeps.xml
-$SRCROOT/cdeps/docn/cime_config/testdefs/testlist_docn.xml
-$SRCROOT/cdeps/drof/cime_config/testdefs/testlist_drof.xml
-$SRCROOT/cdeps/datm/cime_config/testdefs/testlist_datm.xml
-$SRCROOT/cdeps/dlnd/cime_config/testdefs/testlist_dlnd.xml
-$SRCROOT/cdeps/dwav/cime_config/testdefs/testlist_dwav.xml
+These test suites are defined in the following directories::
 
-mediator:
-$SRCROOT/cmeps/cime_config/testdefs/testlist_drv.xml
-``
+  prognostic components:
+  $SRCROOT/blom/cime_config/testdefs/testlist_blom.xml
+  $SRCROOT/cam/cime_config/testdefs/testlist_cam.xml
+  $SRCROOT/cice/cime_config/testdefs/testlist_cice.xml
+  $SRCROOT/cism/cime_config/testdefs/testlist_cism.xml
+  $SRCROOT/clm/cime_config/testdefs/testlist_clm.xml
+  $SRCROOT/rtm/cime_config/testdefs/testlist_rtm.xml
+  $SRCROOT/mosart/cime_config/testdefs/testlist_mosart.xml
+  $SRCROOT/ww3dev/cime_config/testdefs/testlist_ww3dev.xml
+
+  data components:
+  $SRCROOT/cdeps/dice/cime_config/testdefs/testlist_dice.xml
+  $SRCROOT/cdeps/cime_config/testdefs/testlist_cdeps.xml
+  $SRCROOT/cdeps/docn/cime_config/testdefs/testlist_docn.xml
+  $SRCROOT/cdeps/drof/cime_config/testdefs/testlist_drof.xml
+  $SRCROOT/cdeps/datm/cime_config/testdefs/testlist_datm.xml
+  $SRCROOT/cdeps/dlnd/cime_config/testdefs/testlist_dlnd.xml
+  $SRCROOT/cdeps/dwav/cime_config/testdefs/testlist_dwav.xml
+  
+  mediator:
+  $SRCROOT/cmeps/cime_config/testdefs/testlist_drv.xml
+
+The contents of each ``testlist_COMPNAME.xml`` will contain sections with the following type of entries::
+
+  <test name="SMS" grid="f45_f45_mg37" compset="I2000Clm51FatesSpRsGs" testmods="clm/FatesColdSatPhen">
+    <machines>
+      <machine name="cheyenne" compiler="nvhpc" category="aux_clm"/>
+      <machine name="betzy" compiler="intel" category="aux_clm_noresm"/>
+    </machines>
+    <options>
+      <option name="wallclock">00:20:00</option>
+      <option name="comment"  >Simple test to make sure the basic Fates-SP compset works"</option>
+    </options>
+  </test>
+
+The above entry implies that this test should be run for either the
+``aux_clm`` category, in which case it will be run on ``cheyenne``
+with the ``nvhpc`` compiler and the ``aux_clm_noresm`` category, in
+which case it will be run on ``betzy`` with the intel compiler.
+
+.. note::
+
+   All noresm test categories will have a ``_noresm`` suffix. 
 
 To determine what pre-defined test suites are available and what tests
 they contain, you can run ``$SRCROOT/cime/scripts/query_testlists`` (run
 ``./query_testlists -h`` for usage information).
 
+Running a pre-defined test suite
+================================
+
 Test suites are retrieved in ``create_test`` via three selection
 attributes:
 
 * The test category, specified with ``--xml-category`` (e.g.,
-  ``--xml-category aux_clm``; see `Test categories`_ for other options)
+  ``--xml-category aux_clm_noresm``; see `test categories`_ for other options)
 
 * The machine, specified with ``--xml-machine`` (e.g., ``--xml-machine
   betzy``)

@@ -35,6 +35,148 @@ The workflow passes through the following steps:
 #. Synchronize local clone (and/or fork repository) with recent changes from the
    main repository.
 
+
+Creating a NorESM Sandbox
+'''''''''''''''''''''''''
+
+The repositories in the NorESM organization
+(https://github.com/NorESMHub) are read-only for the majority of
+contributors. In order to contribute to these repositories and
+collaborate with other NorESM developers you should create a fork or
+forks of the relevant component repositories you want to work with. As
+an example, if you want to work with NorESM/CAM got to
+https://github.com/NorESMhub/CAM and click the "Fork" button at the
+top right. This will then create a fork in your personal GitHub user
+account. You only need to do this once: you'll have one GitHub fork to
+hold all of your branches.
+
+All the repositories in https://github.com/NorESMhub are
+public. This means that your fork will also be publicly
+readable. However, it will only be writeable by you, UNLESS you
+add collaborators. If you want to keep your developments
+private for some time, you can avoid pushing them to your
+fork. One option is to just commit your changes to the local
+repository that exists on your machine and wait to push them
+until you're ready to share them. Alternatively, you can create
+a private repository on GitHub or elsewhere - but you cannot
+use GitHub's "fork" functionality to do this. The latter choice
+will help you share your changes with a small group of people
+and at the same time keep them private.
+
+NorESM checkout consists of a set of external repositories that are individually cloned by a utility called
+``checkout_externals``. An ``Externals.cfg`` file provides the necessary description of each external repository.
+
+The ``checkout_externals`` command then downloads the external
+components needed to build and run NorESM. For more details on this
+tool, including instructions for changing the versions of these
+externals, see the file README_EXTERNALS.rst at the top level of your
+NorESM checkout described below.
+
+First, make a new clone of the main NorESMhub repository and checkout
+the relevant starting point (i.e. tagname). 
+
+First clone NorESM: ::
+   
+   > git clone --origin  https://github.com/NorESMhub/NorESM 
+   > cd NorESM
+
+Next determine the available tags: ::
+
+   > git tag
+
+Check out out the tag you want: ::
+   
+   > git checkout <TAGNAME>
+
+Create the sandbox by running ``checkout_externals``. Executing
+``checkout_externals`` will now give you a NorESM code sandbox. ::
+
+   > ./manage_externals/checkout_externals
+
+You now have a sandbox that you can use to carry out experiments and scientific development.
+
+Basic development workflow for NorESM
+'''''''''''''''''''''''''''''''''''''
+
+All developers working with NorESM are strongly encouraged to FIRST
+open an issue in relevant repository before starting development. This
+will make other developers aware of your upcoming work, permit
+feedback from others that would be valuable and most importantly avoid
+duplication of work.
+
+To start putting in changes into a NorESMF component you should first
+create a new local branch of your target component.  Lets say you
+wanted to implement new science or infrastructure in NorESM CAM,
+you would want to do the following:
+
+::
+   
+   > cd components/cam
+   > git checkout -b MYBRANCH
+
+**The above** ``git checkout`` command assumes that you want to create
+your branch starting from whatever tag was part of the NorESM
+checkout. Before creating your branch, it is a good idea to know what
+tag your branch is up-to-date with and what the latest tag is on the
+main development branch.  This can be done with ::
+
+   > git describe
+
+**Do not commit changes directly back to the main branch (or any similar
+branches that you got, such as release branches).**
+
+You can then use the standard git workflow to commit your changes::
+
+  [Make some changes]
+  git status
+  git add ...
+  git commit
+
+If/when you want to share your changes, you can do so with [#]_::
+
+  git remote add GITUSER git@github.com:GITUSER/CTSM.git
+  git push -u GITUSER MYBRANCH
+
+replacing ``GITUSER`` with your GitHub username.
+
+.. [#] Once you have become comfortable with git, a good alternative to
+       having separate clones is to use `git worktree
+       <https://git-scm.com/docs/git-worktree>`_. This gives you a
+       separate working directory that shares branches, remotes,
+       etc. with your original clone.
+
+.. [#] Do the initial clone of the main NorESMhub repository (rather
+       than of your personal fork).
+
+       The instructions here will give you two remotes whose names have
+       unambiguous meanings: one named ``noresmhub`` that points to the
+       main repository, and one named with your GitHub username. Many
+       git tutorials refer to remotes named ``origin`` and
+       ``upstream``. With the above recommendations, ``noresmhub``
+       corresponds to ``upstream``, and the remote named with your
+       username corresponds to ``origin``. 
+
+.. [#] You only need to do the ``git remote add`` command once per
+       clone. The URL used here assumes that you have set up ssh keys,
+       as described in `Recommended git setup
+       <https://github.com/ESCOMP/CTSM/wiki/Recommended-git-setup>`_. If
+       you have not done so, you can use the URL
+       ``https://github.com/GITUSER/CTSM.git``.
+
+       The ``-u`` (or ``--set-upstream``) argument to ``git push`` sets
+       the upstream of MYBRANCH to GITUSER/MYBRANCH. This way, you can
+       run ``git push`` and ``git pull`` from this branch in the future
+       without having to specify any other arguments.
+
+
+Git lets you manage multiple branches within a single local clone.
+However, if you have already starting experiments with your cloned
+repository then checking out a different branch in an existing clone
+can interfere with any ongoing cases that you created from that clone,
+and can make it hard to reproduce what you've done later. So, its a
+good idea to have a separate clone for each branch.
+
+
 Keep local clone in sync with main repository
 '''''''''''''''''''''''''''''''''''''''''''''
 
@@ -61,7 +203,6 @@ To get the latest version of ``master`` from ``upstream``
 ::
 
    git pull upstream master
-
 
 Make code changes
 '''''''''''''''''
